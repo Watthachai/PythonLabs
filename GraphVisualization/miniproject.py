@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import customtkinter
+import customtkinter #TODO: ผมมีส่วนเสริมช่วยให้โปรแกรมสวยขึ้นถ้ายังไม่มีกรุณาติดตั้งก่อนนะครับด้วย pip install customtkinter 
 from tkinter import *
-from PIL import Image, ImageTk
-import pandas as pd 
+from PIL import Image, ImageTk #TODO: อันนี้เป็นตัวช่วยให้โปรแกรมแสดงรูปภาพได้นะครับ ถ้ายังไม่มีกรุณาติดตั้งก่อนนะครับด้วย pip install pillow
+import pandas as pd #TODO: ถ้ายังไม่มีให้ pip install pandas นะครับ
 from tkinter import filedialog
-import csv
+import matplotlib.pyplot as plt #TODO: ถ้ายังไม่มีให้ pip install matplotlib นะครับ
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import plotly.express as px
 
 class App:
     def __init__(self, root):
@@ -14,6 +16,7 @@ class App:
         root.title("Data Analysis KMITL")
         icon = PhotoImage(file = 'GraphVisualization/src/images/icon.png')
         root.iconphoto(False, icon)
+        root.option_add("*Font", "Prompt 12")
         
         #setting window size
         width=1100
@@ -23,6 +26,7 @@ class App:
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
+        
         
         def exit_btn():
             #askyesno is a function that return true if user click yes
@@ -35,11 +39,10 @@ class App:
                                                 title="Select A File",
                                                 filetype=(("csv ดรสำห", "*.csv"),("xlsx files", "*.xlsx"),("All Files", "*.*")))
             label_file["text"] = result_data
-            print()
-            print("File Path: ", result_data, "Type: ", type(result_data))
             return None
         
         def load_data():
+            global file_path
             """If the file selected is valid this will load the file into the Treeview"""
             file_path = label_file["text"]
             try:
@@ -50,10 +53,10 @@ class App:
                     df = pd.read_excel(excel_filename)
 
             except ValueError:
-                tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                tk.messagebox.showerror("Information", "The file you have chosen is invalid.")
                 return None
             except FileNotFoundError:
-                tk.messagebox.showerror("Information", f"No such file as {file_path}")
+                tk.messagebox.showerror("Information", f"No such file please select a valid file.")
                 return None
 
             clear_data()
@@ -72,6 +75,221 @@ class App:
             result_data_table.delete(*result_data_table.get_children())
             return None
         
+        ############################################################  Dataframe ############################################################
+        def data_table_page():
+            global data_table_page
+            global data_input_btn
+            global data_table_frame
+            global data_confirm_btn
+            global label_file
+            global result_data_table
+            global treescrollx, treescrolly
+            data_frame_bg = "#393E46"
+                #   Button Dataframe
+            data_input_btn = customtkinter.CTkButton(master=root, text="Insert",command=read_file , width=150, height=50, compound="left",
+                                                        fg_color="#00ADB5", hover_color="#C77C78")
+            data_input_btn.place(x=250, y=140)
+            
+                # Show label at the screen
+            Label(master=root, text="สรุปรายได้และค่าใช้จ่ายการท่องเที่ยวจากนักท่องเที่ยวชาวต่างชาติที่เดินทางเข้าประเทศไทยปี 2019 และ 2020 \nTOURISM RECEIPTS FROM INTERNATIONAL TOURIST ARRIVALS 2019 AND 2020", background="#393E46", foreground="white" , font=("Prompt", 13)).place(x=260, y=50)
+            
+                # Frame for TreeView
+            data_table_frame = tk.Label(root, text="ตารางข้อมูล")
+            data_table_frame.place(height=780, width=800, x=250, y=200)
+
+                # Buttons
+            data_confirm_btn = customtkinter.CTkButton(text="Confirm", command=lambda: load_data())
+            data_confirm_btn.place(x=950, y=140, width=100, height=50)
+
+                # The file/file path text
+            label_file = tk.LabelFrame(text="ยังไม่ได้เลือกไฟล์", background=data_frame_bg, fg="white")
+            label_file.place(x=420, y=160, height=20, width=500)
+                # Treeview Widget
+            result_data_table = ttk.Treeview(data_table_frame)
+            result_data_table.place(relheight=1, relwidth=1) # set the height and width of the widget to 100% of its container (frame1).
+
+            treescrolly = tk.Scrollbar(data_table_frame, orient="vertical", command=result_data_table.yview) # command means update the yaxis view of the widget
+            treescrollx = tk.Scrollbar(data_table_frame, orient="horizontal", command=result_data_table.xview) # command means update the xaxis view of the widget
+            result_data_table.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set) # assign the scrollbars to the Treeview Widget
+            treescrollx.pack(side="bottom", fill="x") # make the scrollbar fill the x axis of the Treeview widget
+            treescrolly.pack(side="right", fill="y") # make the scrollbar fill the y axis of the Treeview widget
+            
+        ############################################################  Graph Chart Page ############################################################
+        def graph_chart():
+            global back_btn
+            global graph_bar
+            try:
+                print(file_path)
+                graph_chart = pd.read_csv(file_path)
+                #make a graph chart
+                df1 = pd.DataFrame(graph_chart)
+                figure1 = plt.Figure(figsize=(8, 7), dpi=100)
+                ax1 = figure1.add_subplot(111)
+                
+                graph_bar = FigureCanvasTkAgg(figure1, root)
+                graph_bar.get_tk_widget().place(x=250, y=200)
+                df1 = df1[['Country', 'Length of Stay']].groupby('Country').sum()
+                df1.plot(kind='line', legend=True, ax=ax1, color='r', marker='o', fontsize=8)
+                
+                ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
+            except ValueError:
+                tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                return None
+            except FileNotFoundError:
+                tk.messagebox.showerror("Information", f"You din't click CONFIRM! for analysis please click confirm")
+                return None
+            except NameError:
+                tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
+                return None
+                
+            #button for graph chart
+            back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
+                                                        fg_color="#00ADB5", hover_color="#C77C78")
+            back_btn.place(x=250, y=940)
+        
+        def bar_chart():
+            global back_btn
+            global graph_bar
+            try:
+                print(file_path)
+                graph_chart = pd.read_csv(file_path)
+                #make a graph chart
+                df1 = pd.DataFrame(graph_chart)
+                figure1 = plt.Figure(figsize=(8, 7), dpi=100)
+                ax1 = figure1.add_subplot(111)
+                
+                graph_bar = FigureCanvasTkAgg(figure1, root)
+                graph_bar.get_tk_widget().place(x=250, y=200)
+                df1 = df1[['Country', 'Length of Stay']].groupby('Country').sum()
+                df1.plot(kind='bar', legend=True, ax=ax1, fontsize=5)
+                ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
+                
+            except ValueError:
+                tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                return None
+            except FileNotFoundError:
+                tk.messagebox.showerror("Information", f"You din't click CONFIRM! for analysis please click confirm")
+                return None
+            except NameError:
+                tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
+                return None
+                
+            #button for graph chart
+            back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
+                                                        fg_color="#00ADB5", hover_color="#C77C78")
+            back_btn.place(x=250, y=940)
+
+        def scatter_chart():
+            global back_btn
+            global graph_bar
+            try:
+                print(file_path)
+                scatter_chart = pd.read_csv(file_path)
+                result_data = pd.DataFrame(scatter_chart)
+                #success: make scatter chart
+                figure1 = plt.Figure(figsize=(8, 7), dpi=100)
+                ax1 = figure1.add_subplot(111)
+                ax1.set_ylabel('Lenght of Stay', fontsize=9)
+                ax1.set_xlabel('Country', fontsize=9)
+                ax1.scatter(result_data['Length of Stay'], result_data['Country'], color='g', s=50, alpha=0.5, edgecolors='black', linewidths=1, )
+                scatter1 = FigureCanvasTkAgg(figure1, root)
+                scatter1.get_tk_widget().place(x=250, y=200)
+                ax1.legend(['Country'])
+                ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
+            except ValueError:
+                tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                return None
+            except FileNotFoundError:
+                tk.messagebox.showerror("Information", f"You din't click CONFIRM! for analysis please click confirm")
+                return None
+            except NameError:
+                tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
+                return None
+                
+            #button for graph chart
+            back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
+                                                        fg_color="#00ADB5", hover_color="#C77C78")
+            back_btn.place(x=250, y=940)
+        
+        def geo_map_chart():
+            try:
+                print(file_path)
+                geo_map = pd.read_csv(file_path)
+                map_result_data = pd.DataFrame(geo_map)
+                
+                lenght_of_stay_map = map_result_data.groupby('Country')['Length of Stay'].value_counts().reset_index(name='Length of Stay')
+                
+                fig = px.choropleth(lenght_of_stay_map, locations="Country", color="Lenght of Stay",
+                                    locationmode='country names',
+                                    animation_frame="Length of Stay",
+                                    color_continuous_scale=px.colors.sequential.Plasma
+                                    )
+                fig.update_layout(title='Country has arrive to Thailand VS. Length of Stay')
+                fig.show()
+                
+                
+            except ValueError:
+                tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                return None
+            except FileNotFoundError:
+                tk.messagebox.showerror("Information", f"You din't click CONFIRM! for analysis please click confirm")
+                return None
+            except NameError:
+                tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
+                return None
+                
+            #button for graph chart
+            back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
+                                                        fg_color="#00ADB5", hover_color="#C77C78")
+            back_btn.place(x=250, y=940)    
+        
+        #Back to chart analysis
+        def back_to_chart_analysis():
+            back_btn.destroy()
+            graph_bar.get_tk_widget().destroy()
+        ############################################################  ENDING of Graph Chart Page ############################################################
+        
+        ############################################################  Data Analysis Page ############################################################
+        def data_analysis_page():
+            global data_analysis_frame
+            global graph_chart_btn
+            global bar_chart_btn
+            global scatter_chart_btn
+            global geo_chart_btn
+            
+            # destroy the previous page
+            data_table_frame.destroy()
+            
+            
+            data_analysis_frame = tk.Frame(dataframe, background=data_frame_bg)
+            data_analysis_frame.place(relx=0.0, rely=0.0, relheight=1.0, relwidth=1.0)
+            #lb = tk.Label(data_analysis_frame)
+            #lb.pack()
+            
+            #chartimages
+            graph_chart_img = ImageTk.PhotoImage(Image.open("GraphVisualization/src/images/graph_chart.png").resize((100,100), Image.ANTIALIAS))
+            bar_chart_img = ImageTk.PhotoImage(Image.open("GraphVisualization/src/images/bar_chart.png").resize((100,100), Image.ANTIALIAS))
+            scatter_chart_img = ImageTk.PhotoImage(Image.open("GraphVisualization/src/images/scatter_chart.png").resize((100,100), Image.ANTIALIAS))
+            geo_chart_img = ImageTk.PhotoImage(Image.open("GraphVisualization/src/images/geomap_chart.png").resize((100,100), Image.ANTIALIAS))
+            
+            #buttons
+            graph_chart_btn = customtkinter.CTkButton(master=root, image=graph_chart_img, text="Graph Chart",command=lambda: graph_chart() , width=250, height=80, compound="left",
+                                                            fg_color="#00ADB5", hover_color="#C77C78")
+            
+            bar_chart_btn = customtkinter.CTkButton(master=root, image=bar_chart_img, text="Bar Chart",command=lambda: bar_chart() , width=250, height=80, compound="left",
+                                                            fg_color="#00ADB5", hover_color="#C77C78")
+            scatter_chart_btn = customtkinter.CTkButton(master=root, image=scatter_chart_img, text="Scatter Chart",command=lambda:scatter_chart() , width=250, height=80, compound="left",
+                                                            fg_color="#00ADB5", hover_color="#C77C78")
+            geo_chart_btn = customtkinter.CTkButton(master=root, image=geo_chart_img, text="Geo Map Chart",command=lambda: geo_map_chart() , width=250, height=80, compound="left",
+                                                            fg_color="#00ADB5", hover_color="#C77C78")
+            
+            graph_chart_btn.place(x=350, y=340)
+            bar_chart_btn.place(x=680, y=340)
+            scatter_chart_btn.place(x=350, y=500)
+            geo_chart_btn.place(x=680, y=500)
+            
+
+            
         # Creating Frame
         menu_frame_bg = "#222831"
         data_frame_bg = "#393E46"
@@ -91,11 +309,11 @@ class App:
         ############################################################   Menuframe ############################################################
             # Use CTkButton instead of tkinter Button because ความสวยงามยังไงล่ะ
             #   Button Menuframe
-        menu_datatable_btn = customtkinter.CTkButton(master=root, image=data_table_image, command="", text="Data Table", width=150, height=50, compound="left", 
+        menu_datatable_btn = customtkinter.CTkButton(master=root, image=data_table_image, command=data_table_page, text="Data Table", width=150, height=50, compound="left", 
                                                     fg_color="#00ADB5", hover_color="#C77C78")
         menu_datatable_btn.pack(padx=2, pady=5)
-
-        data_analysis_btn = customtkinter.CTkButton(master=root, image=pie_chart_image, command="", text="Data Analysis", width=150, height=50, compound="left", 
+        
+        data_analysis_btn = customtkinter.CTkButton(master=root, image=pie_chart_image, command=data_analysis_page, text="Data Analysis", width=150, height=50, compound="left", 
                                                     fg_color="#00ADB5", hover_color="#C77C78")
         data_analysis_btn.pack(padx=2, pady=5)
         
@@ -108,47 +326,12 @@ class App:
         exit_btn.place(x=25, y=900)
         logo = Label(master=root, image=logo).place(x=35, y=20)
         
-        ############################################################  Dataframe ############################################################
-            #   Button Dataframe
-        data_input_btn = customtkinter.CTkButton(master=root, text="Insert",command=read_file , width=150, height=50, compound="left",
-                                                    fg_color="#00ADB5", hover_color="#C77C78")
-        data_input_btn.place(x=250, y=140)
+        data_table_page() # default page run at first start program
         
-            # Show label at the screen
-        Label(master=root, text="สรุปรายได้และค่าใช้จ่ายการท่องเที่ยวจากนักท่องเที่ยวชาวต่างชาติที่เดินทางเข้าประเทศไทยปี 2019 และ 2020 \nTOURISM RECEIPTS FROM INTERNATIONAL TOURIST ARRIVALS 2019 AND 2020", background="#393E46", foreground="white" , font=("Prompt", 13)).place(x=260, y=50)
-        
-            # Frame for TreeView
-        data_table_frame = tk.Label(root, text="ตารางข้อมูล")
-        data_table_frame.place(height=780, width=800, x=250, y=200)
-
-            # Buttons
-        data_confirm_btn = customtkinter.CTkButton(text="Confirm", command=lambda: load_data())
-        data_confirm_btn.place(x=950, y=140, width=100, height=50)
-
-            # The file/file path text
-        label_file = tk.LabelFrame(text="ยังไม่ได้เลือกไฟล์")
-        label_file.place(x=420, y=160, height=20, width=500)
-            # Treeview Widget
-        result_data_table = ttk.Treeview(data_table_frame)
-        result_data_table.place(relheight=1, relwidth=1) # set the height and width of the widget to 100% of its container (frame1).
-
-        treescrolly = tk.Scrollbar(data_table_frame, orient="vertical", command=result_data_table.yview) # command means update the yaxis view of the widget
-        treescrollx = tk.Scrollbar(data_table_frame, orient="horizontal", command=result_data_table.xview) # command means update the xaxis view of the widget
-        result_data_table.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set) # assign the scrollbars to the Treeview Widget
-        treescrollx.pack(side="bottom", fill="x") # make the scrollbar fill the x axis of the Treeview widget
-        treescrolly.pack(side="right", fill="y") # make the scrollbar fill the y axis of the Treeview widget
-        
-        ############################################################  Data Analysis Page ############################################################
-        def data_analysis_page():
-            data_analysis_frame = tk.Frame(dataframe)
-            lb = tk.Label(data_analysis_frame, text="Data Analysis")
-            lb.pack()
-            data_analysis_graph_btn = customtkinter.CTkButton(master=root, text="Graph Chart",command="" , width=150, height=50, compound="left",
-                                                            fg_color="#00ADB5", hover_color="#C77C78")
-            data_analysis_graph_btn.place(x=250, y=240)
 #initialize the window
 if __name__ == "__main__":
     #create CTk window
     root = customtkinter.CTk() #ใช้ส่วนเสริม customtkinter เพื่อความสวยงามโดยการ pip install customtkinter
     app = App(root)
     root.mainloop()
+    

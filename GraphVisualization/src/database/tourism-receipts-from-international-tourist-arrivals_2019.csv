@@ -1,9 +1,4 @@
-﻿TOURISM RECEIPTS FROM INTERNATIONAL TOURIST ARRIVALS,,,,,,,TOURISM RECEIPTS FROM INTERNATIONAL TOURIST ARRIVALS,,,,,,,TOURISM RECEIPTS FROM INTERNATIONAL TOURIST ARRIVALS,,,,,,
-January-December 2019,,,,,,,January-December 2019,,,,,,,January-December 2019,,,,,,
-TOTAL TOUR,,,,,,,GROUP TOUR,,,,,,,NON GROUP TOUR,,,,,,
-,,,,,,Unit : Baht/Person/Day,,,,,,,Unit : Baht/Person/Day,,,,,,,Unit : Baht/Person/Day
-Country,No. of Arrivals,Length of Stay,Per Capita Spending,,Tourism Receipts,,Country,No. of Arrivals,Length of Stay,Per Capita Spending,,Tourism Receipts,,Country,No. of Arrivals,Length of Stay,Per Capita Spending,,Tourism Receipts,
-of Residence,,(Days),Baht/Day,$US/Day,Mil. Baht,Mil. $US,of Residence,,(Days),Baht/Day,$US/Day,Mil. Baht,Mil. $US,of Residence,,(Days),Baht/Day,$US/Day,Mil. Baht,Mil. $US
+﻿Country,No. of Arrivals,Length of Stay,Per Capita Spending,USD,Tourism Receipts Mil. Baht,Tourism Receipts Mil. USD,Country By GROUP TOUR,No. of Arrivals By GROUP TOUR,Length of Stay By GROUP TOUR,Per Capita Spending Baht By GROUP TOUR,Per Capita Spending USD By GROUP TOUR,Tourism Receipts Mil. Baht By GROUP TOUR,Tourism Receipts Mil. USD By GROUP TOUR,Country By NON GROUP TOUR,No. of Arrivals By NON GROUP TOUR,Length of Stay By NON GROUP TOUR,Per Capita Spending Baht By NON GROUP TOUR,Per Capita Spending USD By NON GROUP TOUR,Tourism Receipts Mil. Baht By NON GROUP TOUR,Tourism Receipts Mil. USD By NON GROUP TOUR
 East Asia,"27,669,963",7.08,"5,743.76",184.98,"1,125,223.49","36,239.08",East Asia,"7,936,313",5.52,"6,360.30",204.84,"278,635.14","8,973.76",East Asia,"19,733,650",7.71,"5,564.30",179.2,"846,588.35","27,265.33"
 Asean,"10,876,922",5.9,"5,335.05",171.82,"342,370.64","11,026.43",Asean,"2,280,688",4.45,"5,228.49",168.39,"53,064.22","1,708.99",Asean,"8,596,234",6.28,"5,359.08",172.6,"289,306.42","9,317.44"
 Brunei,"19,858",7.06,"6,741.42",217.11,945.13,30.44,Brunei,"2,503",6.81,"7,007.15",225.67,119.44,3.85,Brunei,"17,355",7.09,"6,710.37",216.11,825.69,26.59
@@ -65,5 +60,9 @@ Others in Middle East,"247,410",11.62,"6,203.94",199.8,"17,835.72",574.42,Others
 Africa,"196,819",12.22,"5,531.79",178.16,"13,304.65",428.49,Africa,"40,273",9.87,"5,946.07",191.5,"2,363.53",76.12,Africa,"156,546",12.83,"5,447.45",175.44,"10,941.12",352.37
 South  Africa,"89,750",13.01,"4,907.78",158.06,"5,730.55",184.56,South  Africa,"15,515",10.04,"5,230.77",168.46,814.8,26.24,South  Africa,"74,235",13.63,"4,858.30",156.47,"4,915.75",158.32
 Others in Africa,"107,069",11.56,"6,119.41",197.08,"7,574.10",243.93,Others in Africa,"24,758",9.77,"6,402.73",206.21,"1,548.73",49.88,Others in Africa,"82,311",12.1,"6,049.77",194.84,"6,025.37",194.05
-Grand Total,"39,916,251",9.26,"5,172.29",166.58,"1,911,807.95","61,571.91",Grand Total,"10,264,333",6.63,"5,835.10",187.93,"397,094.23","12,788.86",Grand Total,"29,651,918",10.18,"5,018.00",161.61,"1,514,713.72","48,783.05"
-Note: Exchange rate 1 US$ = 31.05 Baht,,,,,,,Note: Exchange rate 1 US$ = 31.05 Baht,,,,,,,Note: Exchange rate 1 US$ = 31.05 Baht,,,,,,
+,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,
