@@ -20,12 +20,17 @@ class App:
         root.option_add("*Font", "Prompt 12")
         
         #setting window size
-        width=1100
-        height=1000
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
-        alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr)
+        window_width=1100
+        window_height=1000
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x_cordinate = int((screen_width/2) - (window_width/2))
+        y_cordinate = int((screen_height/2) - (window_height/2))
+        root.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
+                # Useless THEME but Beautiful
+                #style = ttk.Style(root)
+                #root.tk.call('source', 'GraphVisualization/src/theme/azure dark.tcl')
+                #style.theme_use('azure')
         root.resizable(width=False, height=False)
         
         
@@ -119,20 +124,52 @@ class App:
         def graph_chart():
             global back_btn
             global graph_chart1
+            global figure1
+            global select_data_btn
+            global dataset_1
+            #place the combobox
             try:
-                print(file_path)
-                graph_chart = pd.read_csv(file_path)
-                #make a graph chart
-                data_frame = pd.DataFrame(graph_chart)
-                figure1 = plt.Figure(figsize=(8, 7), dpi=100)
-                ax1 = figure1.add_subplot(111)
+                select_dataset1 = tk.StringVar()
+                dataset_1 = ttk.Combobox(root, textvariable=select_dataset1, state='readonly')
+                dataset_1.set('No. of Arrivals')
+                dataset_1['values'] = ('No. of Arrivals', 'Length of Stay','Per Capita Spending Baht', 'Per Capita Spending USD','Tourism Receipts Mil. Baht', 'Tourism Receipts Mil. USD')
+                dataset_1.place(x=470, y=950, width=230, height=30)
                 
-                graph_chart1 = FigureCanvasTkAgg(figure1, root)
-                graph_chart1.get_tk_widget().place(x=250, y=200)
-                data_frame = data_frame[['Country', 'Length of Stay']].groupby('Country').sum()
-                data_frame.plot(kind='line', legend=True, ax=ax1, color='r', marker='o', fontsize=8)
+                def selected_dataset():
+                    try:
+                        global result_dataset
+                        result_dataset = select_dataset1.get()
+                        
+                        print(file_path)
+                        graph_chart = pd.read_csv(file_path)
+                        #make a graph chart
+                        data_frame = pd.DataFrame(graph_chart)
+                        figure1 = plt.Figure(figsize=(8, 7), dpi=100)
+                        ax1 = figure1.add_subplot(111)
+                        graph_chart1 = FigureCanvasTkAgg(figure1, root)
+                        graph_chart1.get_tk_widget().place(x=250, y=200)
+
+                        data_frame = data_frame[['Country', f'{result_dataset} By GROUP TOUR', f'{result_dataset} By NON GROUP TOUR']].groupby('Country').sum().astype(float)
+                        data_frame.plot(kind='bar', legend=True, ax=ax1, fontsize=8)
+                        ax1.set_title('Country has arrive to Thailand By Group Tour and NON Group Tour')
+                    except ValueError:
+                        tk.messagebox.showerror("Information", "The file you have chosen is invalid")
+                        return None
+                    except FileNotFoundError:
+                        tk.messagebox.showerror("Information", f"You din't click CONFIRM! for analysis please click confirm")
+                        return None
+                    except NameError:
+                        tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
+                        return None
+                #button for graph chart
+                select_data_btn = customtkinter.CTkButton(master=root, text="Comfirm Data", command=selected_dataset, width=150, height=50, compound="left",
+                                                            fg_color="#00ADB5", hover_color="#C77C78")
+                select_data_btn.place(x=740, y=940)
+
+                back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
+                                                            fg_color="#00ADB5", hover_color="#C77C78")
+                back_btn.place(x=250, y=940)
                 
-                ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
             except ValueError:
                 tk.messagebox.showerror("Information", "The file you have chosen is invalid")
                 return None
@@ -142,16 +179,12 @@ class App:
             except NameError:
                 tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
                 return None
-                
-            #button for graph chart
-            back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
-                                                        fg_color="#00ADB5", hover_color="#C77C78")
-            back_btn.place(x=250, y=940)
         
         def bar_chart():
             global back_btn
             global bar_chart1
             try:
+                
                 print(file_path)
                 graph_chart = pd.read_csv(file_path)
                 #make a graph chart
@@ -162,8 +195,8 @@ class App:
                 bar_chart1 = FigureCanvasTkAgg(figure1, root)
                 bar_chart1.get_tk_widget().place(x=250, y=200)
                 data_frame = data_frame[['Country', 'Length of Stay']].groupby('Country').sum()
-                data_frame.plot(kind='bar', legend=True, ax=ax1, fontsize=5)
-                ax1.set_title('Country has arrive to Thailand VS. Length of Stay (Days)')
+                data_frame.plot(kind='bar', color="#58D68D", legend=True, ax=ax1, fontsize=5)
+                ax1.set_title('Country has arrive to Thailand VS. No. of Arrivals')
                 
             except ValueError:
                 tk.messagebox.showerror("Information", "The file you have chosen is invalid")
@@ -192,11 +225,11 @@ class App:
                 ax1 = figure1.add_subplot(111)
                 ax1.set_ylabel('Lenght of Stay', fontsize=9)
                 ax1.set_xlabel('Country', fontsize=9)
-                ax1.scatter(result_data['Length of Stay'], result_data['Country'], color='g', s=50, alpha=0.5, edgecolors='black', linewidths=1, )
+                ax1.scatter(result_data['No. of Arrivals'], result_data['Country'], color='g', s=50, alpha=0.5, edgecolors='black', linewidths=1, )
                 scatter1 = FigureCanvasTkAgg(figure1, root)
                 scatter1.get_tk_widget().place(x=250, y=200)
                 ax1.legend(['Country'])
-                ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
+                ax1.set_title('Country has arrive to Thailand VS. No. of Arrivals')
             except ValueError:
                 tk.messagebox.showerror("Information", "The file you have chosen is invalid")
                 return None
@@ -214,7 +247,10 @@ class App:
         
         def geo_map_chart():
             try:
-                data = pd.read_csv('GraphVisualization/src/database/tourism-receipts-from-international-tourist-arrivals_2018.csv')
+                print(file_path)
+                graph_chart = pd.read_csv(file_path)
+                #make a graph chart
+                data = pd.DataFrame(graph_chart)
                 print(data.shape)
 
                 data['Country'] = data['Country'].dropna().apply(lambda x :  x.replace(' ,',',').replace(', ',',').split(','))
@@ -255,12 +291,16 @@ class App:
         #Back to chart analysis
         def back_to_chart_analysis():
             back_btn.destroy()
+            select_data_btn.destroy()
+            dataset_1.destroy()
             try:
+                back_btn.destroy()
                 graph_chart1.get_tk_widget().destroy()
                 bar_chart1.get_tk_widget().destroy()
                 scatter1.get_tk_widget().destroy()
                 
             except NameError:
+                back_btn.destroy()
                 bar_chart1.get_tk_widget().destroy()
                 scatter1.get_tk_widget().destroy()
         ############################################################  ENDING of Graph Chart Page ############################################################

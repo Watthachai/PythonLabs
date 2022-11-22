@@ -16,9 +16,8 @@ y_cordinate = int((screen_height/2) - (window_height/2))
 root.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
 
 style = ttk.Style(root)
-root.tk.call('source', 'GraphVisualization/src/theme/azure dark.tcl')
+root.tk.call('source', 'azure dark.tcl')
 style.theme_use('azure')
-
 
 options = ['', 'OptionMenu', 'Value 1', 'Value 2']
 a = tk.IntVar()
@@ -57,39 +56,9 @@ radio2.place(x=20, y=60)
 radio3 = ttk.Radiobutton(frame2, text='Disabled', state='disabled')
 radio3.place(x=20, y=100)
 
-# s = ttk.Style(root)
-# s.configure('Wild.TButton',
-#     background='black',
-#     foreground='white',
-#     highlightthickness='20',
-#     font=('Helvetica', 18, 'bold'))
-# s.map('Wild.TButton',
-#     foreground=[('disabled', 'yellow'),
-#                 ('pressed', 'red'),
-#                 ('active', 'blue')],
-#     background=[('disabled', 'magenta'),
-#                 ('pressed', '!focus', 'cyan'),
-#                 ('active', 'green'),
-#                 ('invalid', "red")],
-#     highlightcolor=[('focus', 'green'),
-#                     ('!focus', 'red')],
-#     relief=[('pressed', 'groove'),
-#             ('!pressed', 'ridge')])
-def check_entry():
-    print(entry.get())
-    if "@" not in entryVar.get():
-        print("there is no @")
-        entry.state(["invalid"])
-        print(entry.state())
-
-entryVar = tk.StringVar()
-entry = ttk.Entry(root, textvariable=entryVar,)
+entry = ttk.Entry(root)
 entry.place(x=250, y=20)
 entry.insert(0, 'Entry')
-button1 = ttk.Button(root, text="CHECK", command=check_entry)
-button1.place(x=350, y=20)
-
-
 
 spin = ttk.Spinbox(root, from_=0, to=100, increment=0.1)
 spin.place(x=250, y=70)
