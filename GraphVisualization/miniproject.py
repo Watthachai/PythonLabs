@@ -255,11 +255,13 @@ class App:
         #Back to chart analysis
         def back_to_chart_analysis():
             back_btn.destroy()
-            if graph_chart:
+            try:
                 graph_chart1.get_tk_widget().destroy()
-            if bar_chart:
                 bar_chart1.get_tk_widget().destroy()
-            if scatter_chart:
+                scatter1.get_tk_widget().destroy()
+                
+            except NameError:
+                bar_chart1.get_tk_widget().destroy()
                 scatter1.get_tk_widget().destroy()
         ############################################################  ENDING of Graph Chart Page ############################################################
         
