@@ -1,14 +1,15 @@
+from tkinter import *
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import filedialog
 import customtkinter #TODO: ผมมีส่วนเสริมช่วยให้โปรแกรมสวยขึ้นถ้ายังไม่มีกรุณาติดตั้งก่อนนะครับด้วย pip install customtkinter 
-from tkinter import *
 from PIL import Image, ImageTk #TODO: อันนี้เป็นตัวช่วยให้โปรแกรมแสดงรูปภาพได้นะครับ ถ้ายังไม่มีกรุณาติดตั้งก่อนนะครับด้วย pip install pillow
 import pandas as pd #TODO: ถ้ายังไม่มีให้ pip install pandas นะครับ
-from tkinter import filedialog
 import matplotlib.pyplot as plt #TODO: ถ้ายังไม่มีให้ pip install matplotlib นะครับ
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import plotly.express as px
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg 
+import plotly.express as px #TODO: ถ้ายังไม่มีให้ pip install plotly นะครับ
+import numpy as np #TODO: ถ้ายังไม่มีให้ pip install numpy นะครับ
 
 class App:
     def __init__(self, root):
@@ -37,7 +38,7 @@ class App:
             """This Function will open the file explorer and assign the chosen file path to label_file"""
             result_data = filedialog.askopenfilename(initialdir="/",
                                                 title="Select A File",
-                                                filetype=(("csv ดรสำห", "*.csv"),("xlsx files", "*.xlsx"),("All Files", "*.*")))
+                                                filetype=(("csv files", "*.csv"),("xlsx files", "*.xlsx"),("All Files", "*.*")))
             label_file["text"] = result_data
             return None
         
@@ -117,19 +118,19 @@ class App:
         ############################################################  Graph Chart Page ############################################################
         def graph_chart():
             global back_btn
-            global graph_bar
+            global graph_chart1
             try:
                 print(file_path)
                 graph_chart = pd.read_csv(file_path)
                 #make a graph chart
-                df1 = pd.DataFrame(graph_chart)
+                data_frame = pd.DataFrame(graph_chart)
                 figure1 = plt.Figure(figsize=(8, 7), dpi=100)
                 ax1 = figure1.add_subplot(111)
                 
-                graph_bar = FigureCanvasTkAgg(figure1, root)
-                graph_bar.get_tk_widget().place(x=250, y=200)
-                df1 = df1[['Country', 'Length of Stay']].groupby('Country').sum()
-                df1.plot(kind='line', legend=True, ax=ax1, color='r', marker='o', fontsize=8)
+                graph_chart1 = FigureCanvasTkAgg(figure1, root)
+                graph_chart1.get_tk_widget().place(x=250, y=200)
+                data_frame = data_frame[['Country', 'Length of Stay']].groupby('Country').sum()
+                data_frame.plot(kind='line', legend=True, ax=ax1, color='r', marker='o', fontsize=8)
                 
                 ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
             except ValueError:
@@ -149,26 +150,26 @@ class App:
         
         def bar_chart():
             global back_btn
-            global graph_bar
+            global bar_chart1
             try:
                 print(file_path)
                 graph_chart = pd.read_csv(file_path)
                 #make a graph chart
-                df1 = pd.DataFrame(graph_chart)
+                data_frame = pd.DataFrame(graph_chart)
                 figure1 = plt.Figure(figsize=(8, 7), dpi=100)
                 ax1 = figure1.add_subplot(111)
                 
-                graph_bar = FigureCanvasTkAgg(figure1, root)
-                graph_bar.get_tk_widget().place(x=250, y=200)
-                df1 = df1[['Country', 'Length of Stay']].groupby('Country').sum()
-                df1.plot(kind='bar', legend=True, ax=ax1, fontsize=5)
-                ax1.set_title('Country has arrive to Thailand VS. Length of Stay')
+                bar_chart1 = FigureCanvasTkAgg(figure1, root)
+                bar_chart1.get_tk_widget().place(x=250, y=200)
+                data_frame = data_frame[['Country', 'Length of Stay']].groupby('Country').sum()
+                data_frame.plot(kind='bar', legend=True, ax=ax1, fontsize=5)
+                ax1.set_title('Country has arrive to Thailand VS. Length of Stay (Days)')
                 
             except ValueError:
                 tk.messagebox.showerror("Information", "The file you have chosen is invalid")
                 return None
             except FileNotFoundError:
-                tk.messagebox.showerror("Information", f"You din't click CONFIRM! for analysis please click confirm")
+                tk.messagebox.showerror("Information", f"You didn't click CONFIRM! for analysis please click confirm")
                 return None
             except NameError:
                 tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
@@ -181,7 +182,7 @@ class App:
 
         def scatter_chart():
             global back_btn
-            global graph_bar
+            global scatter1
             try:
                 print(file_path)
                 scatter_chart = pd.read_csv(file_path)
@@ -213,18 +214,26 @@ class App:
         
         def geo_map_chart():
             try:
-                print(file_path)
-                geo_map = pd.read_csv(file_path)
-                map_result_data = pd.DataFrame(geo_map)
-                
-                lenght_of_stay_map = map_result_data.groupby('Country')['Length of Stay'].value_counts().reset_index(name='Length of Stay')
-                
-                fig = px.choropleth(lenght_of_stay_map, locations="Country", color="Lenght of Stay",
+                data = pd.read_csv('GraphVisualization/src/database/tourism-receipts-from-international-tourist-arrivals_2018.csv')
+                print(data.shape)
+
+                data['Country'] = data['Country'].dropna().apply(lambda x :  x.replace(' ,',',').replace(', ',',').split(','))
+                lst_col = 'Country'
+                data2 = pd.DataFrame({
+                    col :  np.repeat(data[col].values, data[lst_col].str.len())
+                    for col in data.columns.drop(lst_col)}
+                    ).assign(**{lst_col:np.concatenate(data[lst_col].values)})[data.columns.tolist()]
+
+                year_country2 = data2.groupby('No. of Arrivals')['Country'].value_counts().reset_index(name='counts')
+
+                fig = px.choropleth(year_country2, locations="Country", color="counts", 
                                     locationmode='country names',
-                                    animation_frame="Length of Stay",
-                                    color_continuous_scale=px.colors.sequential.Plasma
-                                    )
-                fig.update_layout(title='Country has arrive to Thailand VS. Length of Stay')
+                                    animation_frame='No. of Arrivals',
+                                    range_color=[0, 9000000],
+                                    color_continuous_scale=px.colors.sequential.OrRd
+                                )
+
+                fig.update_layout(title='Comparison by country')
                 fig.show()
                 
                 
@@ -238,15 +247,20 @@ class App:
                 tk.messagebox.showerror("Information", f"Plese choose file for analysis and then click confirm")
                 return None
                 
-            #button for graph chart
+            """ #button for graph chart
             back_btn = customtkinter.CTkButton(master=root, text="Back",command=back_to_chart_analysis , width=150, height=50, compound="left",
                                                         fg_color="#00ADB5", hover_color="#C77C78")
-            back_btn.place(x=250, y=940)    
+            back_btn.place(x=250, y=940)    """
         
         #Back to chart analysis
         def back_to_chart_analysis():
             back_btn.destroy()
-            graph_bar.get_tk_widget().destroy()
+            if graph_chart:
+                graph_chart1.get_tk_widget().destroy()
+            if bar_chart:
+                bar_chart1.get_tk_widget().destroy()
+            if scatter_chart:
+                scatter1.get_tk_widget().destroy()
         ############################################################  ENDING of Graph Chart Page ############################################################
         
         ############################################################  Data Analysis Page ############################################################
