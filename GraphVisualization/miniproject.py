@@ -252,7 +252,7 @@ class App:
                     ax1 = figure1.add_subplot(111)
                     ax1.set_ylabel('Lenght of Stay', fontsize=9)
                     ax1.set_xlabel('Country', fontsize=9)
-                    ax1.scatter(result_data['Lenght of Stay'], result_data['Country'], color='g', s=50, alpha=0.5, edgecolors='black', linewidths=1, )
+                    ax1.scatter(result_data['Length of Stay'], result_data['Country'], color='g', s=50, alpha=0.5, edgecolors='black', linewidths=1, )
                     scatter1 = FigureCanvasTkAgg(figure1, root)
                     scatter1.get_tk_widget().place(x=250, y=200)
                     ax1.legend(['Country'])
